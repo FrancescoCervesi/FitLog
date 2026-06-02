@@ -10,6 +10,5 @@ Werkzeug==3.0.3
 python-dotenv==1.0.1
 gunicorn==22.0.0
 
-# Driver PostgreSQL — necessario solo se usi il database persistente su Render.
-# Scommenta la riga seguente quando colleghi PostgreSQL:
-# psycopg2-binary==2.9.9
+# Driver PostgreSQL — necessario per il database persistente su Render.
+psycopg2-binary==2.9.9

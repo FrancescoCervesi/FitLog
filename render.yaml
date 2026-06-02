@@ -1,11 +1,32 @@
+# render.yaml — Blueprint di deploy per Render
+#
+# Definisce in modo automatico:
+#   1. il Web Service Flask (avviato con gunicorn)
+#   2. il database PostgreSQL persistente
+#
+# Render legge questo file e crea/aggiorna tutto da solo.
+
 services:
   - type: web
     name: fitlog
     runtime: python
+    plan: free
+    # Installa le dipendenze e crea le tabelle del database
     buildCommand: pip install -r requirements.txt && python setup_db.py
+    # Avvia l'app in produzione (run:app = variabile 'app' in run.py)
     startCommand: gunicorn run:app
     envVars:
+      # Chiave segreta per i cookie di sessione: Render ne genera una sicura
       - key: SECRET_KEY
         generateValue: true
       - key: PYTHON_VERSION
         value: 3.11.0
+      # URL del database: collegato automaticamente al Postgres qui sotto
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fitlog-db
+          property: connectionString
+
+databases:
+  - name: fitlog-db
+    plan: free
