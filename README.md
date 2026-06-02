@@ -62,14 +62,14 @@ python seed_demo.py
 python run.py
 ```
 
-L'app sarà disponibile su `http://127.0.0.1:5000`.
+L'app sarà disponibile su `https://fitlog-lbwm.onrender.com`.
 
 ---
 
 ## Come usare l'applicazione
 
 ### Registrazione e login
-1. Apri `http://127.0.0.1:5000`
+1. Apri `https://fitlog-lbwm.onrender.com`
 2. Clicca **Registrati** e inserisci username, email e password
 3. Effettua il **Login** con le credenziali create
 
