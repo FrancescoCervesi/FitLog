@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}FitLog — Allenamenti e Alimentazione{% endblock %}
+{% block content %}
+
+<div class="hero text-center mb-5">
+    <h1 class="mb-3">Allenati. Mangia bene. Migliora.</h1>
+    <p class="lead mb-4 mx-auto" style="max-width:640px;">
+        FitLog ti aiuta a tenere traccia dei tuoi allenamenti, del diario alimentare
+        e del tuo peso nel tempo — tutto in un unico posto, con grafici chiari sui tuoi progressi.
+    </p>
+    <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg px-4">Inizia gratis</a>
+    <a href="{{ url_for('main.login') }}" class="btn btn-outline-light btn-lg px-4 ms-2">Accedi</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4 text-center">
+            <div style="font-size:2.5rem;">🏋️</div>
+            <h3 class="h5 mt-2">Allenamenti</h3>
+            <p class="text-muted mb-0">Crea le tue sessioni, aggiungi esercizi con serie, ripetizioni e peso, e monitora il volume totale.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4 text-center">
+            <div style="font-size:2.5rem;">🥗</div>
+            <h3 class="h5 mt-2">Alimentazione</h3>
+            <p class="text-muted mb-0">Registra i pasti con calorie e macronutrienti. Vedi i totali giornalieri a colpo d'occhio.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4 text-center">
+            <div style="font-size:2.5rem;">📈</div>
+            <h3 class="h5 mt-2">Progressi</h3>
+            <p class="text-muted mb-0">Grafici del peso corporeo, delle calorie e della frequenza degli allenamenti nel tempo.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

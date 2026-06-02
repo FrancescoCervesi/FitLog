@@ -1,0 +1,25 @@
+# Ambiente virtuale
+.venv/
+venv/
+env/
+
+# File compilati Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Database locale e segreti — NON caricare su GitHub!
+instance/
+*.sqlite
+*.db
+.env
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Configurazioni locali degli strumenti di sviluppo
+.claude/

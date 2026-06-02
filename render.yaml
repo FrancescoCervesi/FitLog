@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: fitlog
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python setup_db.py
+    startCommand: gunicorn run:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0

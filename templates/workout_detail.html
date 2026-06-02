@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}{{ workout.name }} — FitLog{% endblock %}
+{% block content %}
+
+<div class="mb-3">
+    <a href="{{ url_for('main.workouts') }}" class="text-decoration-none text-muted">← Tutti gli allenamenti</a>
+</div>
+
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="mb-1">{{ workout.name }}</h1>
+        <p class="text-muted mb-0">📅 {{ workout.workout_date.strftime('%d/%m/%Y') }} · Volume totale: <strong>{{ workout.total_volume|round(0)|int }} kg</strong></p>
+    </div>
+    <form method="POST" action="{{ url_for('main.delete_workout', workout_id=workout.id) }}"
+          onsubmit="return confirm('Eliminare questo allenamento e tutti i suoi esercizi?')">
+        <button class="btn btn-outline-danger btn-sm">🗑 Elimina allenamento</button>
+    </form>
+</div>
+
+{% if workout.notes %}
+<div class="alert alert-light border">{{ workout.notes }}</div>
+{% endif %}
+
+<!-- ══════ TABELLA ESERCIZI ══════ -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Esercizi</h2>
+        {% if workout.exercises %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr class="text-muted small">
+                        <th>Esercizio</th><th>Serie</th><th>Rip.</th><th>Peso (kg)</th><th>Volume</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in workout.exercises %}
+                    <tr>
+                        <td class="fw-bold">{{ e.name }}</td>
+                        <td>{{ e.sets }}</td>
+                        <td>{{ e.reps }}</td>
+                        <td>{{ e.weight }}</td>
+                        <td>{{ e.volume|round(0)|int }}</td>
+                        <td class="text-end">
+                            <form method="POST" action="{{ url_for('main.delete_exercise', exercise_id=e.id) }}" class="d-inline"
+                                  onsubmit="return confirm('Eliminare questo esercizio?')">
+                                <button class="btn btn-sm btn-outline-danger">✕</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Ancora nessun esercizio. Aggiungine uno qui sotto 👇</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ══════ FORM AGGIUNTA ESERCIZIO ══════ -->
+<div class="card">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Aggiungi esercizio</h2>
+        <form method="POST" action="{{ url_for('main.add_exercise', workout_id=workout.id) }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small">Nome esercizio</label>
+                    <input type="text" name="name" class="form-control" placeholder="Es. Panca piana" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Serie</label>
+                    <input type="number" name="sets" class="form-control" value="3" min="1">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Ripetizioni</label>
+                    <input type="number" name="reps" class="form-control" value="10" min="1">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Peso (kg)</label>
+                    <input type="number" name="weight" class="form-control" value="0" min="0" step="0.5">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">+ Aggiungi</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

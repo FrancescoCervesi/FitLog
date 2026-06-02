@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Alimentazione — FitLog{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="mb-0">Diario alimentare</h1>
+    <a href="{{ url_for('main.create_meal') }}" class="btn btn-accent btn-sm">+ Registra pasto</a>
+</div>
+
+{% if giorni %}
+    {% for giorno, pasti, totali in giorni %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                <h2 class="h5 mb-0">{{ giorno.strftime('%A %d/%m/%Y') }}</h2>
+                <div class="small">
+                    <span class="badge bg-warning text-dark">🔥 {{ totali.calorie }} kcal</span>
+                    <span class="badge bg-success">P {{ totali.proteine }}g</span>
+                    <span class="badge bg-primary">C {{ totali.carbo }}g</span>
+                    <span class="badge bg-info text-dark">G {{ totali.grassi }}g</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for p in pasti %}
+                        <tr>
+                            <td><span class="badge-meal badge-{{ p.meal_type }}">{{ p.meal_type|capitalize }}</span></td>
+                            <td class="fw-bold">{{ p.name }}</td>
+                            <td class="text-muted small">{{ p.calories }} kcal</td>
+                            <td class="text-muted small d-none d-md-table-cell">P {{ p.protein }}g · C {{ p.carbs }}g · G {{ p.fat }}g</td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ url_for('main.delete_meal', meal_id=p.id) }}" class="d-inline"
+                                      onsubmit="return confirm('Eliminare questo pasto?')">
+                                    <button class="btn btn-sm btn-outline-danger">✕</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card p-5 text-center">
+    <p class="text-muted fs-5 mb-3">Il tuo diario è vuoto.</p>
+    <div><a href="{{ url_for('main.create_meal') }}" class="btn btn-accent">Registra il primo pasto</a></div>
+</div>
+{% endif %}
+
+{% endblock %}

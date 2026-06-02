@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Allenamenti — FitLog{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="mb-0">I tuoi allenamenti</h1>
+    <div>
+        <a href="{{ url_for('main.export_workouts') }}" class="btn btn-outline-primary btn-sm">⬇ Esporta CSV</a>
+        <a href="{{ url_for('main.create_workout') }}" class="btn btn-primary btn-sm">+ Nuovo allenamento</a>
+    </div>
+</div>
+
+{% if workouts %}
+<div class="row g-3">
+    {% for w in workouts %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-hover h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h2 class="h5 mb-1">
+                        <a href="{{ url_for('main.workout_detail', workout_id=w.id) }}" class="text-decoration-none text-dark">{{ w.name }}</a>
+                    </h2>
+                    <span class="badge bg-light text-dark">{{ w.workout_date.strftime('%d/%m/%Y') }}</span>
+                </div>
+                <p class="text-muted small mb-2">
+                    {{ w.exercises|length }} esercizi · Volume {{ w.total_volume|round(0)|int }} kg
+                </p>
+                {% if w.notes %}<p class="small mb-2 text-muted">{{ w.notes[:80] }}{% if w.notes|length > 80 %}...{% endif %}</p>{% endif %}
+                <a href="{{ url_for('main.workout_detail', workout_id=w.id) }}" class="btn btn-outline-primary btn-sm">Apri →</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card p-5 text-center">
+    <p class="text-muted fs-5 mb-3">Non hai ancora creato allenamenti.</p>
+    <div><a href="{{ url_for('main.create_workout') }}" class="btn btn-primary">Crea il primo allenamento</a></div>
+</div>
+{% endif %}
+
+{% endblock %}

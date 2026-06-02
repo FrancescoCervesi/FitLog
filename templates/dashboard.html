@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — FitLog{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="mb-0">Ciao, {{ current_user.username }} 👋</h1>
+    <div>
+        <a href="{{ url_for('main.create_workout') }}" class="btn btn-primary btn-sm">+ Allenamento</a>
+        <a href="{{ url_for('main.create_meal') }}" class="btn btn-accent btn-sm">+ Pasto</a>
+    </div>
+</div>
+
+<!-- ══════════ CARD STATISTICHE ══════════ -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-green">
+            <div class="stat-icon">🏋️</div>
+            <div class="stat-value">{{ num_allenamenti }}</div>
+            <div class="stat-label">Allenamenti totali</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-orange">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value">{{ calorie_oggi }}</div>
+            <div class="stat-label">Calorie oggi (kcal)</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon">🍽️</div>
+            <div class="stat-value">{{ num_pasti }}</div>
+            <div class="stat-label">Pasti registrati</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-purple">
+            <div class="stat-icon">⚖️</div>
+            <div class="stat-value">{% if ultimo_peso %}{{ ultimo_peso }}{% else %}—{% endif %}</div>
+            <div class="stat-label">Ultimo peso (kg)</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════ GRAFICI ══════════ -->
+<div class="row g-4">
+    <!-- Peso nel tempo -->
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h3 class="h5 mb-3">Andamento del peso</h3>
+            {% if peso_valori %}
+                <canvas id="graficoPeso" height="220"></canvas>
+            {% else %}
+                <p class="text-muted text-center py-5">Nessun dato. <a href="{{ url_for('main.measurements') }}">Registra il tuo peso</a> per vedere il grafico.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Macro di oggi -->
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h3 class="h5 mb-3">Macronutrienti di oggi</h3>
+            {% if proteine_oggi or carbo_oggi or grassi_oggi %}
+                <canvas id="graficoMacro" height="220"></canvas>
+            {% else %}
+                <p class="text-muted text-center py-5">Nessun pasto registrato oggi.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Allenamenti ultimi 7 giorni -->
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h3 class="h5 mb-3">Allenamenti (ultimi 7 giorni)</h3>
+            <canvas id="graficoAllenamenti" height="220"></canvas>
+        </div>
+    </div>
+
+    <!-- Calorie ultimi 7 giorni -->
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h3 class="h5 mb-3">Calorie (ultimi 7 giorni)</h3>
+            <canvas id="graficoCalorie" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js: libreria per i grafici (caricata da CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script id="dashboard-data" type="application/json">
+{{ {
+  peso_labels: peso_labels,
+  peso_valori: peso_valori,
+  allenamenti_labels: allenamenti_labels,
+  allenamenti_valori: allenamenti_valori,
+  calorie_labels: calorie_labels,
+  calorie_valori: calorie_valori,
+  macro: [proteine_oggi or 0, carbo_oggi or 0, grassi_oggi or 0]
+} | tojson }}
+</script>
+<script>
+const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+const pesoLabels = dashboardData.peso_labels;
+const pesoValori = dashboardData.peso_valori;
+const allenLabels = dashboardData.allenamenti_labels;
+const allenValori = dashboardData.allenamenti_valori;
+const calLabels = dashboardData.calorie_labels;
+const calValori = dashboardData.calorie_valori;
+const macro = dashboardData.macro;
+const pesoCanvas = document.getElementById('graficoPeso');
+const macroCanvas = document.getElementById('graficoMacro');
+const allenCanvas = document.getElementById('graficoAllenamenti');
+const calCanvas = document.getElementById('graficoCalorie');
+
+// ── Grafico peso (linea) ──
+if (pesoCanvas && pesoValori.length > 0) {
+  new Chart(pesoCanvas, {
+    type: 'line',
+    data: { labels: pesoLabels, datasets: [{
+      label: 'Peso (kg)', data: pesoValori,
+      borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,.1)',
+      fill: true, tension: .3, pointRadius: 4
+    }]},
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+  });
+}
+
+// ── Grafico macro (ciambella) ──
+const hasMacroData = macro.some(value => value > 0);
+if (macroCanvas && hasMacroData) {
+  new Chart(macroCanvas, {
+    type: 'doughnut',
+    data: { labels: ['Proteine (g)', 'Carboidrati (g)', 'Grassi (g)'],
+      datasets: [{ data: macro, backgroundColor: ['#10b981', '#f97316', '#0ea5e9'] }]},
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+// ── Grafico allenamenti (barre) ──
+if (allenCanvas) {
+  new Chart(allenCanvas, {
+    type: 'bar',
+    data: { labels: allenLabels, datasets: [{
+      label: 'Allenamenti', data: allenValori, backgroundColor: '#10b981', borderRadius: 6 }]},
+    options: { plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+}
+
+// ── Grafico calorie (barre) ──
+if (calCanvas) {
+  new Chart(calCanvas, {
+    type: 'bar',
+    data: { labels: calLabels, datasets: [{
+      label: 'Calorie (kcal)', data: calValori, backgroundColor: '#f97316', borderRadius: 6 }]},
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+</script>
+{% endblock %}

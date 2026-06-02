@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Peso — FitLog{% endblock %}
+{% block content %}
+
+<h1 class="mb-4">Peso corporeo</h1>
+
+<div class="row g-4">
+    <!-- Form + grafico -->
+    <div class="col-lg-7">
+        <div class="card p-4 mb-4">
+            <h2 class="h5 mb-3">Registra il peso di oggi</h2>
+            <form method="POST" action="{{ url_for('main.create_measurement') }}">
+                <div class="row g-2 align-items-end">
+                    <div class="col-sm-4">
+                        <label for="measure_date" class="form-label small">Data</label>
+                        <input type="date" id="measure_date" name="measure_date" class="form-control" value="{{ oggi }}">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="weight_kg" class="form-label small">Peso (kg)</label>
+                        <input type="number" id="weight_kg" name="weight_kg" class="form-control" placeholder="es. 72.5" min="0" step="0.1" required>
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="submit" class="btn btn-primary w-100">+ Salva</button>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <input type="text" name="notes" class="form-control" placeholder="Note (facoltative)">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card p-4">
+            <h2 class="h5 mb-3">Andamento</h2>
+            {% if valori %}
+                <canvas id="graficoPeso" height="200"></canvas>
+            {% else %}
+                <p class="text-muted text-center py-4">Nessuna misurazione ancora.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Storico -->
+    <div class="col-lg-5">
+        <div class="card p-4 h-100">
+            <h2 class="h5 mb-3">Storico</h2>
+            {% if measurements %}
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead><tr class="text-muted small"><th>Data</th><th>Peso</th><th></th></tr></thead>
+                    <tbody>
+                        {% for m in measurements %}
+                        <tr>
+                            <td>{{ m.measure_date.strftime('%d/%m/%Y') }}</td>
+                            <td class="fw-bold">{{ m.weight_kg }} kg</td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ url_for('main.delete_measurement', measurement_id=m.id) }}" class="d-inline"
+                                      onsubmit="return confirm('Eliminare questa misurazione?')">
+                                    <button class="btn btn-sm btn-outline-danger">✕</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Nessun dato.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const labels = {{ labels | tojson }};
+const valori = {{ valori | tojson }};
+if (valori.length > 0) {
+  new Chart(document.getElementById('graficoPeso'), {
+    type: 'line',
+    data: { labels: labels, datasets: [{
+      label: 'Peso (kg)', data: valori,
+      borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.12)',
+      fill: true, tension: .3, pointRadius: 4
+    }]},
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+  });
+}
+</script>
+{% endblock %}
