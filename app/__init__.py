@@ -63,4 +63,21 @@ def create_app():
     from app.routes import main
     app.register_blueprint(main)
 
+    # ── CREAZIONE TABELLE AL PRIMO AVVIO ────────────────────
+    # Crea le tabelle se non esistono ancora. È idempotente: non
+    # cancella né modifica i dati già presenti. In questo modo l'app
+    # funziona anche se il Build Command non esegue setup_db.py.
+    with app.app_context():
+        from app import models  # noqa: F401 — registra i modelli in SQLAlchemy
+        db.create_all()
+
     return app
+
+
+# ─────────────────────────────────────────────────────────────
+# Istanza WSGI a livello di package, così funziona sia
+#   gunicorn run:app   (come da render.yaml)
+#   gunicorn app:app   (configurazione attuale del servizio Render)
+# Avere entrambe evita errori se lo Start Command non coincide.
+# ─────────────────────────────────────────────────────────────
+app = create_app()
