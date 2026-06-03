@@ -92,13 +92,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script id="dashboard-data" type="application/json">
 {{ {
-  peso_labels: peso_labels,
-  peso_valori: peso_valori,
-  allenamenti_labels: allenamenti_labels,
-  allenamenti_valori: allenamenti_valori,
-  calorie_labels: calorie_labels,
-  calorie_valori: calorie_valori,
-  macro: [proteine_oggi or 0, carbo_oggi or 0, grassi_oggi or 0]
+  "peso_labels": peso_labels,
+  "peso_valori": peso_valori,
+  "allenamenti_labels": allenamenti_labels,
+  "allenamenti_valori": allenamenti_valori,
+  "calorie_labels": calorie_labels,
+  "calorie_valori": calorie_valori,
+  "macro": [proteine_oggi or 0, carbo_oggi or 0, grassi_oggi or 0]
 } | tojson }}
 </script>
 <script>
