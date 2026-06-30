@@ -12,7 +12,7 @@ services:
     runtime: python
     plan: free
     # Installa le dipendenze e crea le tabelle del database
-    buildCommand: pip install -r requirements.txt && python setup_db.py
+    buildCommand: pip install -r requirements.txt && python setup_db.py && python seed_demo.py
     # Avvia l'app in produzione (run:app = variabile 'app' in run.py)
     startCommand: gunicorn run:app
     envVars:
